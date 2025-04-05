@@ -60,10 +60,12 @@ with app.app_context():
     from auth import auth_bp
     from employee import employee_bp
     from feedback import feedback_bp
+    from docs import docs_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(employee_bp)
     app.register_blueprint(feedback_bp)
+    app.register_blueprint(docs_bp)
     
     # Setup login manager user loader
     @login_manager.user_loader
