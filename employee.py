@@ -17,6 +17,8 @@ employee_bp = Blueprint('employee', __name__)
 def dashboard():
     # Basic statistics for the dashboard
     total_employees = Employee.query.count()
+    # Add current date/time for dashboard display
+    now = datetime.now()
     
     # For managers, show their team stats
     if current_user.is_manager:
@@ -34,7 +36,8 @@ def dashboard():
             'managed_employees': managed_employees,
             'recent_feedback': recent_feedback,
             'team_skills': team_skills,
-            'is_manager': True
+            'is_manager': True,
+            'now': now
         }
     else:
         # For regular employees, show their feedback
@@ -48,12 +51,14 @@ def dashboard():
                 'total_employees': total_employees,
                 'employee': employee,
                 'recent_feedback': recent_feedback,
-                'is_manager': False
+                'is_manager': False,
+                'now': now
             }
         else:
             context = {
                 'total_employees': total_employees,
-                'is_manager': False
+                'is_manager': False,
+                'now': now
             }
     
     return render_template('dashboard.html', **context)
