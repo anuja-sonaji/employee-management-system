@@ -67,17 +67,30 @@ document.addEventListener('DOMContentLoaded', function() {
     if (searchInput) {
         searchInput.addEventListener('keyup', function() {
             const searchTerm = this.value.toLowerCase();
-            const table = document.querySelector('table');
-            const rows = table.querySelectorAll('tbody tr');
             
-            rows.forEach(row => {
-                const text = row.textContent.toLowerCase();
-                if(text.includes(searchTerm)) {
-                    row.style.display = '';
-                } else {
-                    row.style.display = 'none';
+            // Find if we have a DataTable initialized
+            if ($.fn.dataTable.isDataTable('#employeeTable')) {
+                // Use DataTables search if available
+                $('#employeeTable').DataTable().search(searchTerm).draw();
+            } else if ($.fn.dataTable.isDataTable('#feedbackTable')) {
+                // Use DataTables search if available
+                $('#feedbackTable').DataTable().search(searchTerm).draw();
+            } else {
+                // Fallback to manual search if no DataTable
+                const table = document.querySelector('table');
+                if (table) {
+                    const rows = table.querySelectorAll('tbody tr');
+                    
+                    rows.forEach(row => {
+                        const text = row.textContent.toLowerCase();
+                        if(text.includes(searchTerm)) {
+                            row.style.display = '';
+                        } else {
+                            row.style.display = 'none';
+                        }
+                    });
                 }
-            });
+            }
         });
     }
 });

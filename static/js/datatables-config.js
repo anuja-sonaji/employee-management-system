@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (employeeTable) {
         new DataTable('#employeeTable', {
             responsive: true,
-            dom: 'Bfrtip',
+            dom: '<"row"<"col-md-6"l><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>B',
             buttons: [
                 'copy', 'csv', 'excel', 'pdf', 'print'
             ],
@@ -16,6 +16,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 info: "Showing _START_ to _END_ of _TOTAL_ employees",
                 infoEmpty: "Showing 0 to 0 of 0 employees",
                 infoFiltered: "(filtered from _MAX_ total employees)"
+            },
+            initComplete: function() {
+                // Connect the global search with DataTables search
+                const dataTable = this;
+                $('#searchInput').on('keyup', function() {
+                    dataTable.api().search($(this).val()).draw();
+                });
             }
         });
     }
@@ -25,6 +32,7 @@ document.addEventListener('DOMContentLoaded', function() {
     if (feedbackTable) {
         new DataTable('#feedbackTable', {
             responsive: true,
+            dom: '<"row"<"col-md-6"l><"col-md-6"f>>rt<"row"<"col-md-6"i><"col-md-6"p>>',
             order: [[3, 'desc']], // Sort by date by default
             pageLength: 10,
             language: {
@@ -33,6 +41,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 info: "Showing _START_ to _END_ of _TOTAL_ feedback entries",
                 infoEmpty: "Showing 0 to 0 of 0 feedback entries",
                 infoFiltered: "(filtered from _MAX_ total feedback entries)"
+            },
+            initComplete: function() {
+                // Connect the global search with DataTables search
+                const dataTable = this;
+                $('#searchInput').on('keyup', function() {
+                    dataTable.api().search($(this).val()).draw();
+                });
             }
         });
     }
