@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Login - Employee Management System{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-xl-10 col-lg-12 col-md-9">
+            <div class="card o-hidden border-0 shadow-lg my-5">
+                <div class="card-body p-0">
+                    <div class="row">
+                        <div class="col-lg-6 d-none d-lg-block bg-primary">
+                            <div class="p-5 text-center text-white d-flex align-items-center justify-content-center h-100">
+                                <div>
+                                    <h1 class="display-4 mb-4">
+                                        <i class="fas fa-users fa-2x mb-3"></i><br>
+                                        Employee Management System
+                                    </h1>
+                                    <p class="lead">Manage your team, track feedback, and improve performance</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-6">
+                            <div class="p-5">
+                                <div class="text-center">
+                                    <h1 class="h4 mb-4">Welcome Back!</h1>
+                                </div>
+                                
+                                <form class="user" method="POST" action="{{ url_for('auth.login') }}">
+                                    <div class="form-group mb-3">
+                                        <input type="text" class="form-control form-control-user" 
+                                               id="username" name="username" placeholder="Username" required>
+                                    </div>
+                                    <div class="form-group mb-3">
+                                        <input type="password" class="form-control form-control-user" 
+                                               id="password" name="password" placeholder="Password" required>
+                                    </div>
+                                    <button type="submit" class="btn btn-primary btn-user btn-block w-100">
+                                        Login
+                                    </button>
+                                </form>
+                                
+                                <hr>
+                                
+                                <div class="text-center">
+                                    <p>Not registered? Contact your system administrator.</p>
+                                </div>
+                                
+                                <!-- Link to initialize users if none exist -->
+                                <div class="text-center">
+                                    <a href="{{ url_for('auth.create_initial_users') }}" class="small">
+                                        Initialize system
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,121 @@
+{% extends "base.html" %}
+
+{% block title %}Employees - Employee Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Employees</h1>
+        
+        {% if is_manager %}
+        <a href="{{ url_for('employee.create_employee') }}" class="btn btn-primary">
+            <i class="fas fa-user-plus mr-1"></i> Add Employee
+        </a>
+        {% endif %}
+    </div>
+    
+    <!-- Employee List Table -->
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold text-primary">Employee Directory</h6>
+        </div>
+        <div class="card-body">
+            {% if employees %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="employeeTable" width="100%" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>Full Name</th>
+                            <th>Benzyl</th>
+                            <th>Role</th>
+                            <th>Skill</th>
+                            <th>Team</th>
+                            <th>Grade</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for employee in employees %}
+                        <tr {% if employee.manager_id == current_user.id %}class="table-primary"{% endif %}>
+                            <td>{{ employee.full_name }}</td>
+                            <td>{{ employee.benzyl }}</td>
+                            <td>{{ employee.role }}</td>
+                            <td>{{ employee.skill }}</td>
+                            <td>{{ employee.team }}</td>
+                            <td>{{ employee.grade }}</td>
+                            <td>{{ employee.location }}</td>
+                            <td>
+                                <div class="btn-group" role="group">
+                                    <a href="{{ url_for('employee.employee_detail', employee_id=employee.id) }}" 
+                                       class="btn btn-info btn-sm" data-bs-toggle="tooltip" title="View Details">
+                                        <i class="fas fa-eye"></i>
+                                    </a>
+                                    
+                                    {% if is_manager and employee.manager_id == current_user.id %}
+                                    <a href="{{ url_for('feedback.create_feedback', employee_id=employee.id) }}" 
+                                       class="btn btn-success btn-sm" data-bs-toggle="tooltip" title="Provide Feedback">
+                                        <i class="fas fa-comment-dots"></i>
+                                    </a>
+                                    
+                                    <a href="{{ url_for('employee.edit_employee', employee_id=employee.id) }}" 
+                                       class="btn btn-warning btn-sm" data-bs-toggle="tooltip" title="Edit Employee">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    
+                                    <button type="button" class="btn btn-danger btn-sm confirm-delete" 
+                                            data-bs-toggle="modal" data-bs-target="#deleteModal{{ employee.id }}" 
+                                            title="Delete Employee">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                    
+                                    <!-- Delete Modal -->
+                                    <div class="modal fade" id="deleteModal{{ employee.id }}" tabindex="-1" 
+                                         aria-labelledby="deleteModalLabel" aria-hidden="true">
+                                        <div class="modal-dialog">
+                                            <div class="modal-content">
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title" id="deleteModalLabel">
+                                                        Confirm Delete
+                                                    </h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal" 
+                                                            aria-label="Close"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    Are you sure you want to delete {{ employee.full_name }}? 
+                                                    This action cannot be undone.
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" 
+                                                            data-bs-dismiss="modal">Cancel</button>
+                                                    <form action="{{ url_for('employee.delete_employee', employee_id=employee.id) }}" 
+                                                          method="POST">
+                                                        <button type="submit" class="btn btn-danger">Delete</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-5">
+                <i class="fas fa-users fa-4x mb-3 text-gray-300"></i>
+                <p class="lead text-gray-500">No employees found</p>
+                {% if is_manager %}
+                <a href="{{ url_for('employee.create_employee') }}" class="btn btn-primary mt-3">
+                    <i class="fas fa-user-plus mr-1"></i> Add First Employee
+                </a>
+                {% endif %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

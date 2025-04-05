@@ -1,0 +1,79 @@
+{% extends "base.html" %}
+
+{% block title %}Import/Export - Employee Management System{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3 text-gray-800">Import/Export Employee Data</h1>
+        
+        <a href="{{ url_for('employee.dashboard') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left mr-1"></i> Back to Dashboard
+        </a>
+    </div>
+    
+    <div class="row">
+        <!-- Import Card -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Import Employee Data</h6>
+                </div>
+                <div class="card-body">
+                    <p>Upload an Excel file (.xlsx, .xls) or CSV file containing employee data.</p>
+                    
+                    <form method="POST" action="{{ url_for('employee.import_export') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="action" value="import">
+                        
+                        <div class="mb-3">
+                            <label for="file" class="form-label">Select File</label>
+                            <input class="form-control" type="file" id="file" name="file" accept=".xlsx,.xls,.csv" required>
+                        </div>
+                        
+                        <div class="alert alert-info">
+                            <h6 class="alert-heading">Expected Column Headers</h6>
+                            <p class="mb-0">
+                                The following columns are required: "Full Name", "Joining Date", "Benzyl", "Role", 
+                                "Skill", "Team", "Manager Name", "Grade", "Designation", "Location"
+                            </p>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">
+                            <i class="fas fa-file-import mr-1"></i> Import Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Export Card -->
+        <div class="col-lg-6">
+            <div class="card shadow mb-4">
+                <div class="card-header py-3">
+                    <h6 class="m-0 font-weight-bold text-primary">Export Employee Data</h6>
+                </div>
+                <div class="card-body">
+                    <p>Export all employee data to an Excel file (.xlsx) for backup or reporting.</p>
+                    
+                    <form method="POST" action="{{ url_for('employee.import_export') }}">
+                        <input type="hidden" name="action" value="export">
+                        
+                        <div class="mb-3">
+                            <div class="alert alert-info">
+                                <p class="mb-0">
+                                    This will export all employee data including names, roles, skills, teams, etc.
+                                    The exported file will not include feedback records.
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-info">
+                            <i class="fas fa-file-export mr-1"></i> Export Data
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
