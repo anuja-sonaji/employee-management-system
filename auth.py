@@ -56,41 +56,39 @@ def profile():
     return render_template('profile.html', employee=employee)
 
 # Admin function to create initial users
-@auth_bp.route('/create_initial_users', methods=['GET', 'POST'])
+@auth_bp.route('/create_initial_users')
 def create_initial_users():
     # Check if any users exist already
     if User.query.count() > 0:
         flash('Initial users already created', 'info')
         return redirect(url_for('auth.login'))
+    
+    try:
+        # Create admin user
+        admin = User(
+            username='admin',
+            email='admin@example.com',
+            is_manager=True
+        )
+        admin.set_password('admin123')
         
-    if request.method == 'POST':
-        try:
-            # Create admin user
-            admin = User(
-                username='admin',
-                email='admin@example.com',
-                is_manager=True
-            )
-            admin.set_password('admin123')
-            
-            # Create a regular employee user
-            employee = User(
-                username='employee',
-                email='employee@example.com',
-                is_manager=False
-            )
-            employee.set_password('employee123')
-            
-            db.session.add(admin)
-            db.session.add(employee)
-            db.session.commit()
-            
-            flash('Initial users created successfully. You can now login.', 'success')
-            logger.info("Initial users created")
-            return redirect(url_for('auth.login'))
-        except Exception as e:
-            db.session.rollback()
-            logger.error(f"Error creating initial users: {str(e)}")
-            flash(f'Error creating users: {str(e)}', 'danger')
-            
-    return render_template('create_initial_users.html')
+        # Create a regular employee user
+        employee = User(
+            username='employee',
+            email='employee@example.com',
+            is_manager=False
+        )
+        employee.set_password('employee123')
+        
+        db.session.add(admin)
+        db.session.add(employee)
+        db.session.commit()
+        
+        flash('Initial users created successfully. You can now login with username "admin" and password "admin123".', 'success')
+        logger.info("Initial users created")
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error creating initial users: {str(e)}")
+        flash(f'Error creating users: {str(e)}', 'danger')
+    
+    return redirect(url_for('auth.login'))
