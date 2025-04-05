@@ -30,7 +30,7 @@
         
         <ul class="nav flex-column">
             <li class="nav-item">
-                <a class="nav-link {% if request.endpoint == 'employee.dashboard' %}active{% endif %}" 
+                <a class="nav-link {% if request.endpoint and request.endpoint == 'employee.dashboard' %}active{% endif %}" 
                    href="{{ url_for('employee.dashboard') }}">
                     <i class="fas fa-fw fa-tachometer-alt"></i>
                     <span>Dashboard</span>
@@ -38,7 +38,7 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link {% if 'employee_list' in request.endpoint %}active{% endif %}" 
+                <a class="nav-link {% if request.endpoint and 'employee_list' in request.endpoint %}active{% endif %}" 
                    href="{{ url_for('employee.employee_list') }}">
                     <i class="fas fa-fw fa-users"></i>
                     <span>Employees</span>
@@ -46,7 +46,7 @@
             </li>
             
             <li class="nav-item">
-                <a class="nav-link {% if 'feedback' in request.endpoint %}active{% endif %}" 
+                <a class="nav-link {% if request.endpoint and 'feedback' in request.endpoint %}active{% endif %}" 
                    href="{{ url_for('feedback.feedback_list') }}">
                     <i class="fas fa-fw fa-comments"></i>
                     <span>Feedback</span>
@@ -55,7 +55,7 @@
             
             {% if current_user.is_manager %}
             <li class="nav-item">
-                <a class="nav-link {% if 'import_export' in request.endpoint %}active{% endif %}" 
+                <a class="nav-link {% if request.endpoint and 'import_export' in request.endpoint %}active{% endif %}" 
                    href="{{ url_for('employee.import_export') }}">
                     <i class="fas fa-fw fa-file-excel"></i>
                     <span>Import/Export</span>

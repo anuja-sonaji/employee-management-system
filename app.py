@@ -48,10 +48,16 @@ def page_not_found(e):
 def internal_server_error(e):
     return render_template('errors/500.html'), 500
 
+# Setup login manager user loader
+@login_manager.user_loader
+def load_user(user_id):
+    from models import User  # Import here to avoid circular imports
+    return User.query.get(int(user_id))
+
 # Create all tables and import routes
 with app.app_context():
-    # Import models
-    from models import User, Employee, Feedback
+    # Import models (moved to inside app context to avoid circular imports)
+    import models
     
     # Create database tables
     db.create_all()
@@ -67,9 +73,4 @@ with app.app_context():
     app.register_blueprint(feedback_bp)
     app.register_blueprint(docs_bp)
     
-    # Setup login manager user loader
-    @login_manager.user_loader
-    def load_user(user_id):
-        return User.query.get(int(user_id))
-
     logger.info("Application initialized successfully")

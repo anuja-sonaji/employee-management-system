@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>404 Not Found - Employee Management System</title>
+    <title>{% block title %}Error - Employee Management System{% endblock %}</title>
     <!-- Bootstrap CSS from Replit CDN -->
     <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
     <!-- Font Awesome -->
@@ -11,12 +11,7 @@
 </head>
 <body>
     <div class="container mt-5">
-        <div class="text-center">
-            <div class="display-1">404</div>
-            <p class="lead mb-5">Page Not Found</p>
-            <p class="text-muted mb-4">It looks like you found a glitch in the matrix...</p>
-            <a href="/" class="btn btn-primary">&larr; Back to Home</a>
-        </div>
+        {% block content %}{% endblock %}
     </div>
     
     <!-- Bootstrap JS Bundle -->
