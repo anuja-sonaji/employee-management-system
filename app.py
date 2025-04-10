@@ -10,12 +10,8 @@ from werkzeug.middleware.proxy_fix import ProxyFix
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
-# Setup base for SQLAlchemy models
-class Base(DeclarativeBase):
-    pass
-
 # Initialize extensions
-db = SQLAlchemy(model_class=Base)
+db = SQLAlchemy()
 login_manager = LoginManager()
 
 # Create the Flask application
