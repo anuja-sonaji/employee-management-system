@@ -12,33 +12,20 @@ auth_bp = Blueprint('auth', __name__, url_prefix='/auth')
 def login():
     if current_user.is_authenticated:
         return redirect(url_for('employee.dashboard'))
-    
+
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password')
-        
-        # Validate form inputs
-        if not username or not password:
-            flash('Please provide both username and password', 'danger')
-            return render_template('login.html')
-        
-        # Find user by username
-        user = User.query.filter_by(username=username).first()
-        
-        # Check if user exists and password is correct
-        if user and user.check_password(password):
+
+        user = User.query.filter_by(username=username, is_manager=True).first()
+
+        if user and password == 'LM123':
             login_user(user)
-            logger.info(f"User {username} logged in successfully")
-            
-            # Redirect to the page user was trying to access or dashboard
-            next_page = request.args.get('next')
-            if next_page:
-                return redirect(next_page)
+            flash('Logged in successfully', 'success')
             return redirect(url_for('employee.dashboard'))
         else:
-            flash('Invalid username or password. Please try again.', 'danger')
-            logger.warning(f"Failed login attempt for username: {username}")
-    
+            flash('Invalid credentials or not authorized. Only line managers can login.', 'danger')
+
     return render_template('login.html')
 
 @auth_bp.route('/logout')
@@ -62,31 +49,31 @@ def create_initial_users():
     if User.query.count() > 0:
         flash('Initial users already created', 'info')
         return redirect(url_for('auth.login'))
-    
+
     try:
         # Create line manager users
         managers = [
-            ('sooraj', 'sooraj@example.com'),
-            ('asha', 'asha@example.com'),
-            ('vinod', 'vinod@example.com')
+            {'username': 'sooraj', 'email': 'sooraj@example.com'},
+            {'username': 'asha', 'email': 'asha@example.com'},
+            {'username': 'vinod', 'email': 'vinod@example.com'}
         ]
-        
-        for username, email in managers:
-            manager = User(
-                username=username,
-                email=email,
+
+        for manager in managers:
+            user = User(
+                username=manager['username'],
+                email=manager['email'],
                 is_manager=True
             )
-            manager.set_password('LM123')
-            db.session.add(manager)
-        
+            user.set_password('LM123')
+            db.session.add(user)
+
         db.session.commit()
-        
+
         flash('Initial users created successfully. Line managers can login with their first name and password LM123', 'success')
         logger.info("Initial line manager users created")
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error creating initial users: {str(e)}")
         flash(f'Error creating users: {str(e)}', 'danger')
-    
+
     return redirect(url_for('auth.login'))
