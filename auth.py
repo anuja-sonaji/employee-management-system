@@ -64,28 +64,26 @@ def create_initial_users():
         return redirect(url_for('auth.login'))
     
     try:
-        # Create admin user
-        admin = User(
-            username='admin',
-            email='admin@example.com',
-            is_manager=True
-        )
-        admin.set_password('admin123')
+        # Create line manager users
+        managers = [
+            ('sooraj', 'sooraj@example.com'),
+            ('asha', 'asha@example.com'),
+            ('vinod', 'vinod@example.com')
+        ]
         
-        # Create a regular employee user
-        employee = User(
-            username='employee',
-            email='employee@example.com',
-            is_manager=False
-        )
-        employee.set_password('employee123')
+        for username, email in managers:
+            manager = User(
+                username=username,
+                email=email,
+                is_manager=True
+            )
+            manager.set_password('LM123')
+            db.session.add(manager)
         
-        db.session.add(admin)
-        db.session.add(employee)
         db.session.commit()
         
-        flash('Initial users created successfully. You can now login with username "admin" and password "admin123".', 'success')
-        logger.info("Initial users created")
+        flash('Initial users created successfully. Line managers can login with their first name and password LM123', 'success')
+        logger.info("Initial line manager users created")
     except Exception as e:
         db.session.rollback()
         logger.error(f"Error creating initial users: {str(e)}")
