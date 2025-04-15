@@ -16,23 +16,21 @@ def require_manager(f):
         return f(*args, **kwargs)
     return decorated_function
 
-def get_current_quarter():
-    """Get the current quarter in format 'Q1-YYYY'"""
-    now = datetime.now()
-    quarter = (now.month - 1) // 3 + 1
-    return f"Q{quarter}-{now.year}"
+def get_current_month():
+    now = datetime.utcnow()
+    return f"{now.year:04d}-{now.month:02d}"
 
 def export_employees_to_excel():
     """Export employee data to Excel"""
     # Query all employees
     employees = Employee.query.all()
-    
+
     # Create dataframe
     data = []
     for employee in employees:
         manager = User.query.get(employee.manager_id) if employee.manager_id else None
         manager_name = manager.username if manager else ""
-        
+
         data.append({
             'Full Name': employee.full_name,
             'Joining Date': employee.joining_date,
@@ -45,17 +43,17 @@ def export_employees_to_excel():
             'Designation': employee.designation,
             'Location': employee.location
         })
-    
+
     # Convert to DataFrame
     df = pd.DataFrame(data)
-    
+
     # Create Excel file in memory
     output = io.BytesIO()
     with pd.ExcelWriter(output, engine='openpyxl') as writer:
         df.to_excel(writer, index=False, sheet_name='Employees')
-    
+
     output.seek(0)
-    
+
     # Create response with Excel file
     return Response(
         output,

@@ -69,7 +69,7 @@ class Feedback(db.Model):
     rating = db.Column(db.Integer, nullable=False)  # e.g., 1-5 rating scale
     feedback_text = db.Column(db.Text, nullable=False)
     feedback_date = db.Column(db.DateTime, default=datetime.utcnow)
-    quarter = db.Column(db.String(10), nullable=False)  # e.g., "Q1-2023"
+    month = db.Column(db.String(7), nullable=False)  # e.g., "2023-01"
     
     def __repr__(self):
         return f'<Feedback for Employee #{self.employee_id} by {self.provided_by.username}>'

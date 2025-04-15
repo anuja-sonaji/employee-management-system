@@ -80,10 +80,10 @@ def create_feedback(employee_id):
             # Get form data
             rating = int(request.form.get('rating'))
             feedback_text = request.form.get('feedback_text')
-            quarter = request.form.get('quarter')
+            month = request.form.get('month')
             
             # Validate required fields
-            if not all([rating, feedback_text, quarter]):
+            if not all([rating, feedback_text, month]):
                 flash('All fields are required', 'danger')
                 return redirect(url_for('feedback.create_feedback', employee_id=employee_id))
             
@@ -98,7 +98,7 @@ def create_feedback(employee_id):
                 provided_by_id=current_user.id,
                 rating=rating,
                 feedback_text=feedback_text,
-                quarter=quarter,
+                month=month,
                 feedback_date=datetime.utcnow()
             )
             
