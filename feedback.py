@@ -12,9 +12,24 @@ feedback_bp = Blueprint('feedback', __name__, url_prefix='/feedback')
 @feedback_bp.route('/')
 @login_required
 def feedback_list():
-    # For managers, show feedback they've given
+    current_employee = Employee.query.filter_by(user_id=current_user.id).first()
+    
     if current_user.is_manager:
-        feedback = Feedback.query.filter_by(provided_by_id=current_user.id)\
+        # Get direct reportees
+        direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
+        direct_reportee_ids = [emp.id for emp in direct_reportees]
+        
+        # Get indirect reportees (reportees of reportees who are managers)
+        indirect_reportees = []
+        for reportee in direct_reportees:
+            if User.query.get(reportee.user_id).is_manager:
+                indirect = Employee.query.filter_by(manager_id=reportee.user_id).all()
+                indirect_reportees.extend(indirect)
+        
+        all_reportee_ids = direct_reportee_ids + [emp.id for emp in indirect_reportees]
+        
+        # Get feedback for all reportees
+        feedback = Feedback.query.filter(Feedback.employee_id.in_(all_reportee_ids))\
             .order_by(Feedback.feedback_date.desc()).all()
         
         context = {
@@ -23,11 +38,9 @@ def feedback_list():
             'view_type': 'provided'
         }
     else:
-        # For employees, show feedback they've received
-        employee = Employee.query.filter_by(user_id=current_user.id).first()
-        
-        if employee:
-            feedback = Feedback.query.filter_by(employee_id=employee.id)\
+        # For employees, show only feedback they've received
+        if current_employee:
+            feedback = Feedback.query.filter_by(employee_id=current_employee.id)\
                 .order_by(Feedback.feedback_date.desc()).all()
             
             context = {
@@ -48,9 +61,30 @@ def feedback_list():
 @login_required
 def employee_feedback(employee_id):
     employee = Employee.query.get_or_404(employee_id)
+    current_employee = Employee.query.filter_by(user_id=current_user.id).first()
     
-    # Regular employees can only view their own feedback
-    if not current_user.is_manager and not employee.user_id == current_user.id:
+    # Check permissions
+    has_access = False
+    if current_user.is_manager:
+        # Direct reportees
+        direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
+        direct_reportee_ids = [emp.id for emp in direct_reportees]
+        
+        # Indirect reportees
+        indirect_reportees = []
+        for reportee in direct_reportees:
+            if User.query.get(reportee.user_id).is_manager:
+                indirect = Employee.query.filter_by(manager_id=reportee.user_id).all()
+                indirect_reportees.extend(indirect)
+        
+        if employee.id in direct_reportee_ids or employee in indirect_reportees:
+            has_access = True
+    
+    # Employee can view their own feedback
+    if employee.user_id == current_user.id:
+        has_access = True
+        
+    if not has_access:
         flash('You do not have permission to view this feedback.', 'danger')
         return redirect(url_for('feedback.feedback_list'))
     
