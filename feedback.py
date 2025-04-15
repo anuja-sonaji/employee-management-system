@@ -15,15 +15,12 @@ def feedback_list():
     current_employee = Employee.query.filter_by(user_id=current_user.id).first()
     
     if current_user.is_manager:
-        # Get only direct reportees for the current manager user
-        direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
-        direct_reportee_ids = [emp.id for emp in direct_reportees]
-        
-        # Get feedback only for direct reportees where the current user is the manager
-        feedback = Feedback.query.join(Employee)\
+        # Get feedback only for employees who directly report to the current manager
+        feedback = Feedback.query\
+            .join(Employee, Feedback.employee_id == Employee.id)\
             .filter(Employee.manager_id == current_user.id)\
             .order_by(Feedback.feedback_date.desc()).all()
-        
+            
         context = {
             'feedback': feedback,
             'is_manager': True,
@@ -59,7 +56,7 @@ def employee_feedback(employee_id):
     has_access = False
     
     if current_user.is_manager:
-        # Check if the current user is the direct manager of this employee
+        # Only allow access if the employee directly reports to the current manager
         if employee.manager_id == current_user.id:
             has_access = True
     
