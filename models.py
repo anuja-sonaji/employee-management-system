@@ -71,5 +71,10 @@ class Feedback(db.Model):
     feedback_date = db.Column(db.DateTime, default=datetime.utcnow)
     month = db.Column(db.String(7), nullable=False)  # e.g., "2023-01"
     
+    def __init__(self, **kwargs):
+        super(Feedback, self).__init__(**kwargs)
+        if not self.month:
+            self.month = self.feedback_date.strftime('%Y-%m')
+    
     def __repr__(self):
         return f'<Feedback for Employee #{self.employee_id} by {self.provided_by.username}>'
