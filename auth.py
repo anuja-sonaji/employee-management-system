@@ -14,17 +14,18 @@ def login():
         return redirect(url_for('employee.dashboard'))
 
     if request.method == 'POST':
-        username = request.form.get('username')
+        username = request.form.get('username').lower()
         password = request.form.get('password')
 
+        # Check if user exists and is a manager
         user = User.query.filter_by(username=username, is_manager=True).first()
-
+        
         if user and password == 'LM123':
             login_user(user)
-            flash('Logged in successfully', 'success')
+            flash('Welcome, Line Manager!', 'success')
             return redirect(url_for('employee.dashboard'))
         else:
-            flash('Invalid credentials or not authorized. Only line managers can login.', 'danger')
+            flash('Invalid credentials. Please use your name as username and LM123 as password.', 'danger')
 
     return render_template('login.html')
 
@@ -51,8 +52,9 @@ def create_initial_users():
         return redirect(url_for('auth.login'))
 
     try:
-        # Create line manager users
+        # Create line manager users with their actual names
         managers = [
+            {'username': 'anuja', 'email': 'anuja@example.com'},
             {'username': 'sooraj', 'email': 'sooraj@example.com'},
             {'username': 'asha', 'email': 'asha@example.com'},
             {'username': 'vinod', 'email': 'vinod@example.com'}
@@ -60,7 +62,7 @@ def create_initial_users():
 
         for manager in managers:
             user = User(
-                username=manager['username'],
+                username=manager['username'].lower(),
                 email=manager['email'],
                 is_manager=True
             )
