@@ -15,12 +15,13 @@ def feedback_list():
     current_employee = Employee.query.filter_by(user_id=current_user.id).first()
     
     if current_user.is_manager:
-        # Get only direct reportees
+        # Get only direct reportees for the current manager user
         direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
         direct_reportee_ids = [emp.id for emp in direct_reportees]
         
-        # Get feedback only for direct reportees
-        feedback = Feedback.query.filter(Feedback.employee_id.in_(direct_reportee_ids))\
+        # Get feedback only for direct reportees where the current user is the manager
+        feedback = Feedback.query.join(Employee)\
+            .filter(Employee.manager_id == current_user.id)\
             .order_by(Feedback.feedback_date.desc()).all()
         
         context = {
@@ -58,12 +59,8 @@ def employee_feedback(employee_id):
     has_access = False
     
     if current_user.is_manager:
-        # Only direct reportees
-        direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
-        direct_reportee_ids = [emp.id for emp in direct_reportees]
-        
-        # Check if employee is a direct reportee
-        if employee.id in direct_reportee_ids:
+        # Check if the current user is the direct manager of this employee
+        if employee.manager_id == current_user.id:
             has_access = True
     
     # Employee can view their own feedback
@@ -90,10 +87,9 @@ def employee_feedback(employee_id):
 def create_feedback(employee_id):
     employee = Employee.query.get_or_404(employee_id)
     
-    # Check if the employee is a direct reportee
-    direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
-    if employee not in direct_reportees:
-        flash('You can only provide feedback for your direct reportees.', 'danger')
+    # Check if the current user is the manager of this employee
+    if employee.manager_id != current_user.id:
+        flash('You can only provide feedback for employees who directly report to you.', 'danger')
         return redirect(url_for('employee.employee_list'))
     
     if request.method == 'POST':
