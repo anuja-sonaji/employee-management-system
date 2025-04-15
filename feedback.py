@@ -22,10 +22,12 @@ def feedback_list():
         # Get indirect reportees (reportees of reportees who are managers)
         indirect_reportees = []
         for reportee in direct_reportees:
-            if User.query.get(reportee.user_id).is_manager:
+            reportee_user = User.query.get(reportee.user_id)
+            if reportee_user and reportee_user.is_manager:
                 indirect = Employee.query.filter_by(manager_id=reportee.user_id).all()
                 indirect_reportees.extend(indirect)
         
+        # Get feedback for all reportees (direct and indirect)
         all_reportee_ids = direct_reportee_ids + [emp.id for emp in indirect_reportees]
         
         # Get feedback for all reportees
@@ -65,18 +67,21 @@ def employee_feedback(employee_id):
     
     # Check permissions
     has_access = False
+    
     if current_user.is_manager:
         # Direct reportees
         direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
         direct_reportee_ids = [emp.id for emp in direct_reportees]
         
-        # Indirect reportees
+        # Indirect reportees (reportees of reportees who are managers)
         indirect_reportees = []
         for reportee in direct_reportees:
-            if User.query.get(reportee.user_id).is_manager:
+            reportee_user = User.query.get(reportee.user_id)
+            if reportee_user and reportee_user.is_manager:
                 indirect = Employee.query.filter_by(manager_id=reportee.user_id).all()
                 indirect_reportees.extend(indirect)
         
+        # Check if employee is a direct reportee or indirect reportee
         if employee.id in direct_reportee_ids or employee in indirect_reportees:
             has_access = True
     
@@ -104,9 +109,10 @@ def employee_feedback(employee_id):
 def create_feedback(employee_id):
     employee = Employee.query.get_or_404(employee_id)
     
-    # Make sure the employee is managed by the current user
-    if employee.manager_id != current_user.id:
-        flash('You can only provide feedback for employees you manage.', 'danger')
+    # Check if the employee is a direct reportee
+    direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
+    if employee not in direct_reportees:
+        flash('You can only provide feedback for your direct reportees.', 'danger')
         return redirect(url_for('employee.employee_list'))
     
     if request.method == 'POST':
