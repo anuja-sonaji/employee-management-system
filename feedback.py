@@ -4,7 +4,7 @@ from app import db
 from models import Employee, Feedback
 from datetime import datetime
 import logging
-from utils import require_manager, get_current_quarter
+from utils import require_manager, get_current_month
 
 logger = logging.getLogger(__name__)
 feedback_bp = Blueprint('feedback', __name__, url_prefix='/feedback')
@@ -114,11 +114,11 @@ def create_feedback(employee_id):
             flash(f'Error submitting feedback: {str(e)}', 'danger')
     
     # Get current quarter for default selection
-    current_quarter = get_current_quarter()
+    current_month = get_current_month()
     
     return render_template('feedback_form.html', 
                            employee=employee,
-                           current_quarter=current_quarter,
+                           current_month=current_month,
                            feedback=None,
                            action='create')
 
