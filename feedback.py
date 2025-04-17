@@ -87,7 +87,7 @@ def create_feedback(employee_id):
     # Check if the current user is the manager of this employee
     if employee.manager_id != current_user.id:
         flash('You can only provide feedback for employees who directly report to you.', 'danger')
-        return redirect(url_for('employee.employee_list'))
+        return redirect(url_for('feedback.feedback_list'))
     
     if request.method == 'POST':
         try:
