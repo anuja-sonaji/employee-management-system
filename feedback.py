@@ -15,10 +15,13 @@ def feedback_list():
     current_employee = Employee.query.filter_by(user_id=current_user.id).first()
     
     if current_user.is_manager:
-        # Get feedback only for employees who directly report to the current manager
+        # Get feedback strictly for direct reportees only
+        direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
+        direct_reportee_ids = [emp.id for emp in direct_reportees]
+        
         feedback = Feedback.query\
             .join(Employee, Feedback.employee_id == Employee.id)\
-            .filter(Employee.manager_id == current_user.id)\
+            .filter(Employee.id.in_(direct_reportee_ids))\
             .order_by(Feedback.feedback_date.desc()).all()
             
         context = {
@@ -84,14 +87,17 @@ def employee_feedback(employee_id):
 def create_feedback(employee_id):
     employee = Employee.query.get_or_404(employee_id)
     
-    # Check if the current user is the manager of this employee
+    # Strict check for direct reportee relationship
     if employee.manager_id != current_user.id:
-        flash('You can only provide feedback for employees who directly report to you.', 'danger')
+        flash('Access denied: You can only provide feedback for your direct reportees.', 'danger')
         return redirect(url_for('feedback.feedback_list'))
-        
-    # Double check the manager-employee relationship
+
+    # Get all feedback for this employee to check viewing permissions
+    feedback_list = Feedback.query.filter_by(employee_id=employee_id).all()
+    
+    # Ensure the current user can only see feedback for their direct reportees
     if not Employee.query.filter_by(id=employee_id, manager_id=current_user.id).first():
-        flash('Access denied: You are not the line manager of this employee.', 'danger')
+        flash('Access denied: You can only view and provide feedback for your direct reportees.', 'danger')
         return redirect(url_for('feedback.feedback_list'))
     
     if request.method == 'POST':
