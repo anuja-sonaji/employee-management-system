@@ -88,6 +88,11 @@ def create_feedback(employee_id):
     if employee.manager_id != current_user.id:
         flash('You can only provide feedback for employees who directly report to you.', 'danger')
         return redirect(url_for('feedback.feedback_list'))
+        
+    # Double check the manager-employee relationship
+    if not Employee.query.filter_by(id=employee_id, manager_id=current_user.id).first():
+        flash('Access denied: You are not the line manager of this employee.', 'danger')
+        return redirect(url_for('feedback.feedback_list'))
     
     if request.method == 'POST':
         try:

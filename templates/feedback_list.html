@@ -15,7 +15,7 @@
             {% endif %}
         </h1>
         
-        {% if is_manager and view_type == 'for_employee' and employee.manager_id == current_user.id %}
+        {% if is_manager and view_type == 'for_employee' and employee and employee.manager_id == current_user.id %}
         <a href="{{ url_for('feedback.create_feedback', employee_id=employee.id) }}" class="btn btn-success">
             <i class="fas fa-comment-dots mr-1"></i> Provide Feedback
         </a>
