@@ -87,8 +87,12 @@ def employee_feedback(employee_id):
 def create_feedback(employee_id):
     employee = Employee.query.get_or_404(employee_id)
     
-    # Strict check for direct reportee relationship
-    if employee.manager_id != current_user.id:
+    # Get all direct reportees for the current manager
+    direct_reportees = Employee.query.filter_by(manager_id=current_user.id).all()
+    direct_reportee_ids = [emp.id for emp in direct_reportees]
+    
+    # Check if the employee is a direct reportee
+    if employee.id not in direct_reportee_ids:
         flash('Access denied: You can only provide feedback for your direct reportees.', 'danger')
         return redirect(url_for('feedback.feedback_list'))
 
